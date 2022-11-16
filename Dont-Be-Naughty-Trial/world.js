@@ -16,6 +16,10 @@ class world extends Phaser.Scene {
     this.load.image("building", "assets/Buildings32x32.png");
     this.load.image("street", "assets/Street32x32.png");
     this.load.image("item", "assets/City-01.png");
+    
+    //Preload any audios here
+    this.load.audio("bgMusic", "assets/evilgenius.mp3")
+    
   }
 
   create() {
