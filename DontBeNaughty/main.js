@@ -4,9 +4,11 @@ class main extends Phaser.Scene {
         super({
             key: 'main'
         });
-
+    
         // Put global variable here
+        
     }
+
 
     preload() {
 
@@ -41,7 +43,7 @@ class main extends Phaser.Scene {
         spaceDown.on('down', function () {
             console.log('Jump to world scene');
 
-            this.scene.start('world',
+            this.scene.start('bank',
                 // Optional parameters
                 {
 

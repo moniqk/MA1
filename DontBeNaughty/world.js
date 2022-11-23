@@ -1,7 +1,7 @@
-class taman extends Phaser.Scene {
+class world extends Phaser.Scene {
   constructor() {
     super({
-      key: "taman",
+      key: "world",
     });
 
     // Put global variable here
@@ -9,23 +9,23 @@ class taman extends Phaser.Scene {
 
   preload() {
     //Step 1, load JSON
-    this.load.tilemapTiledJSON("taman", "assets/tamanMap.tmj");
+    this.load.tilemapTiledJSON("world", "assets/1CityMap.tmj");
     this.load.spritesheet("thief", "assets/thief.png", {frameWidth: 32, frameHeight: 64});
 
     //Step 2 : Preload any images here
     this.load.image("building", "assets/Buildings32x32.png");
     this.load.image("street", "assets/Street32x32.png");
     this.load.image("item", "assets/City-01.png");
-    this.load.image("village", "assets/village32x32.png");
-    this.load.image("insides", "assets/Interiors_32x32.png");
-    this.load.image("forest", "assets/forest_tiles.png");
+
+    //Preload any sound here
+    this.load.audio("bgMusic","assets/evilgenius.mp3")
   }
 
   create() {
-    console.log("*** taman scene");
+    console.log("*** world scene");
 
    // Step 3 - Create the map from main
-    let map = this.make.tilemap({ key: "taman" });
+    let map = this.make.tilemap({ key: "world" });
 
 
     // Step 4 Load the game tiles
@@ -35,21 +35,19 @@ class taman extends Phaser.Scene {
     let buildingTiles = map.addTilesetImage("Buildings32x32", "building");
     let streetTiles = map.addTilesetImage("Street32x32", "street");
     let cityTiles = map.addTilesetImage("City-01", "item");
-    let villageTiles = map.addTilesetImage("village32x32", "village");
-    let interiorTiles = map.addTilesetImage("Interiors_32x32", "insides");
-    let forestTiles = map.addTilesetImage("forest_tiles", "forest");
 
+    this.bgMusic = this.sound.add ("bgMusic", {loop: true}).setVolume(0.2)
+    // this.bgMusic.play()
+    this.bgMusic.stop()
+    
+    
+    
 
     // Step 5  create an array of tiles
     let tilesArray = [
       buildingTiles,
       streetTiles,
       cityTiles,
-      villageTiles,
-      interiorTiles,
-      forestTiles,
- 
-  
     ];
 
      // Add main player here with physics.add.sprite
@@ -83,11 +81,8 @@ class taman extends Phaser.Scene {
   
         
     // Step 6  Load in layers by layers
-
     this.streetLayer = map.createLayer("streetLayer",tilesArray,0,0);
-    this.decoLayer = map.createLayer("decoLayer",tilesArray,0,0);
-    this.buildingLayer = map.createLayer("buildingLayer",tilesArray,0,0);
-
+    this.buildingsNDecoLayer = map.createLayer("buildingsNDecoLayer",tilesArray,0,0);
 
     
     var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
@@ -107,13 +102,20 @@ class taman extends Phaser.Scene {
    
 
         this.cursors = this.input.keyboard.createCursorKeys();
-      
+        
+        
 
-        this.streetLayer.setCollisionByProperty({ grass: true });
 
+
+      this.streetLayer.setCollisionByProperty({ grass: true });
+      this.streetLayer.setCollisionByProperty({ checkeredTiles: true });
+      this.buildingsNDecoLayer.setCollisionByProperty({ trafficCone: true });
+    
         // this.playerwill collide with the level tiles
       // this.physics.add.collider(this.itemLayer, this.player);
       this.physics.add.collider(this.streetLayer, this.player);
+      this.physics.add.collider(this.buildingsNDecoLayer, this.player);
+
 
 
 
@@ -143,13 +145,14 @@ class taman extends Phaser.Scene {
 
   update() {
     if (
-      this.player.x > 1475 &&
-      this.player.x < 1502 &&
-      this.player.y > 403 &&
-      this.player.y < 428
+      this.player.x > 1989 &&
+      this.player.x < 1995 &&
+      this.player.y > 755 &&
+      this.player.y < 844
     ) {
-      this.house();
+      this.taman();
     }
+
 
     if (this.cursors.left.isDown) {
       this.player.body.setVelocityX(-200);
@@ -176,9 +179,30 @@ class taman extends Phaser.Scene {
     }
     
   } /////////////////// end of update //////////////////////////////
- // Function to jump to house
- house(player, tile) {
-  console.log("house function");
-  this.scene.start("house");
-}
+  
+  
+  // Function to jump to taman
+  taman(player, tile) {
+    console.log("taman function");
+    this.scene.start("taman");
+  }
+
+  moveRightLeft() {
+    console.log("moveDownUp");
+    this.tweens.timeline({
+      targets: this.cleric,
+      loop: -1, // loop forever
+      ease: "Linear",
+      duration: 2000,
+      tweens: [
+        {
+          x: 600,
+        },
+        {
+          x: 300,
+        },
+      ],
+    });
+  }
+  
 } //////////// end of class world ////////////////////////

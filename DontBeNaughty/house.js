@@ -107,6 +107,10 @@ class house extends Phaser.Scene {
    
 
         this.cursors = this.input.keyboard.createCursorKeys();
+
+        this.physics.world.bounds.width = this.groundLayer.width;
+        this.physics.world.bounds.height = this.groundLayer.height;
+        this.player.setCollideWorldBounds(true); // don't go out of the this.map 
     
         this.groundLayer.setCollisionByProperty({outdoor: true });
         this.wallLayer.setCollisionByProperty({houseWall: true });

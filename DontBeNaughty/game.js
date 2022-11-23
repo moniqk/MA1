@@ -16,7 +16,7 @@
     },
     backgroundColor: '#000000',
     pixelArt: true,
-    scene: [main, world, taman, house]
+    scene: [main, bank, world, taman, house]
 
  
 };
