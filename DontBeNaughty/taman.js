@@ -7,6 +7,11 @@ class taman extends Phaser.Scene {
     // Put global variable here
   }
 
+  init(data) {
+    this.player = data.player
+    this.inventory = data.inventory
+}
+
   preload() {
     //Step 1, load JSON
     this.load.tilemapTiledJSON("taman", "assets/tamanMap.tmj");
@@ -141,6 +146,15 @@ class taman extends Phaser.Scene {
     
         // set background color, so the sky is not black
         this.cameras.main.setBackgroundColor("#ccccff");
+
+        this.timedEvent = this.time.addEvent({
+          delay: 1000,
+          callback: updateInventory,
+          callbackScope: this,
+          loop: false,
+        });
+
+  
   } /////////////////// end of create //////////////////////////////
 
   update() {
@@ -150,7 +164,7 @@ class taman extends Phaser.Scene {
       this.player.y > 403 &&
       this.player.y < 428
     ) {
-      this.house();
+      this.levelFour();
     }
 
     if (this.cursors.left.isDown) {
@@ -179,8 +193,8 @@ class taman extends Phaser.Scene {
     
   } /////////////////// end of update //////////////////////////////
  // Function to jump to house
- house(player, tile) {
-  console.log("house function");
-  this.scene.start("house");
+ levelFour(player, tile) {
+  console.log("lvl4 function");
+  this.scene.start("levelFour");
 }
 } //////////// end of class world ////////////////////////

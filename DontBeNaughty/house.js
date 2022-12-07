@@ -7,6 +7,11 @@ class house extends Phaser.Scene {
     // Put global variable here
   }
 
+  init(data) {
+    this.player = data.player
+    this.inventory = data.inventory
+}
+
   preload() {
     //Step 1, load JSON
     this.load.tilemapTiledJSON("house", "assets/houseMap.tmj");
@@ -18,14 +23,29 @@ class house extends Phaser.Scene {
     this.load.image("room", "assets/Room_Builder_32x32.png");
     this.load.image("kitchen", "assets/12_Kitchen_32x32.png");
     this.load.image("bedroom", "assets/4_Bedroom_32x32.png");
+    this.load.image("floor", "assets/City-01.png");
+
+    this.load.image("bag", "assets/cashbag.png");
+    this.load.image("placeplant", "assets/placeplant.png");
+    
+
+    this.load.audio("placeSnd","assets/planting.wav")
+
   }
 
   create() {
     console.log("*** house scene");
 
+    this.timedEvent = this.time.addEvent({
+      delay: 1000,
+      callback: updateInventory,
+      callbackScope: this,
+      loop: false,
+    });
+    
    // Step 3 - Create the map from main
     let map = this.make.tilemap({ key: "house" });
-
+    this.placeSnd = this.sound.add("placeSnd").setVolume(0.5);
 
     // Step 4 Load the game tiles
     // 1st parameter is name in Tiled,
@@ -36,6 +56,8 @@ class house extends Phaser.Scene {
     let roomTiles = map.addTilesetImage("Room_Builder_32x32", "room");
     let kitchenTiles = map.addTilesetImage("12_Kitchen_32x32", "kitchen");
     let bedroomTiles = map.addTilesetImage("4_Bedroom_32x32", "bedroom");
+    let floorTiles = map.addTilesetImage("City-01", "floor");
+
 
 
     // Step 5  create an array of tiles
@@ -45,7 +67,7 @@ class house extends Phaser.Scene {
       roomTiles,
       kitchenTiles,
       bedroomTiles,
- 
+      floorTiles,
   
     ];
 
@@ -84,6 +106,7 @@ class house extends Phaser.Scene {
     this.groundLayer = map.createLayer("groundLayer",tilesArray,0,0);
     this.wallLayer2 = map.createLayer("wallLayer2",tilesArray,0,0);
     this.wallLayer = map.createLayer("wallLayer",tilesArray,0,0);
+    this.kitchenwalls = map.createLayer("kitchenwalls",tilesArray,0,0);
     this.decoLayer = map.createLayer("decoLayer",tilesArray,0,0);
     this.decoLayer2 = map.createLayer("decoLayer2",tilesArray,0,0);
     this.itemLayer = map.createLayer("itemLayer",tilesArray,0,0);
@@ -92,7 +115,13 @@ class house extends Phaser.Scene {
     
     var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
 
+    this.placeplant=this.physics.add.image(417, 1018, "placeplant") 
+    this.placeplant2=this.physics.add.image(733, 164, "placeplant") 
+    this.placeplant3=this.physics.add.image(1088, 436, "placeplant") 
+
     this.player = this.physics.add.sprite(startPoint.x, startPoint.y, "thief").play("down")
+
+
 
     this.player.setScale(0.8);
     window.player = this.player;
@@ -104,7 +133,7 @@ class house extends Phaser.Scene {
       loop: false,
     });
 
-   
+     this.scene.launch("showInventory")
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -112,44 +141,45 @@ class house extends Phaser.Scene {
         this.physics.world.bounds.height = this.groundLayer.height;
         this.player.setCollideWorldBounds(true); // don't go out of the this.map 
     
-        this.groundLayer.setCollisionByProperty({outdoor: true });
+        this.groundLayer.setCollisionByProperty({floor: true });
         this.wallLayer.setCollisionByProperty({houseWall: true });
         this.wallLayer2.setCollisionByProperty({toiletWall: true });
+        this.decoLayer.setCollisionByProperty({table: true });
+        this.decoLayer2.setCollisionByProperty({table: true });
+        this.decoLayer.setCollisionByProperty({furniture: true });
+        this.decoLayer2.setCollisionByProperty({furniture: true });
+        this.kitchenwalls.setCollisionByProperty({kitchenwall: true });
+
+
 
         // this.playerwill collide with the level tiles
       // this.physics.add.collider(this.itemLayer, this.player);
       this.physics.add.collider(this.groundLayer, this.player);
       this.physics.add.collider(this.wallLayer, this.player);
       this.physics.add.collider(this.wallLayer2, this.player);
+      this.physics.add.collider(this.decoLayer, this.player);
+      this.physics.add.collider(this.decoLayer2, this.player);
+      this.physics.add.collider(this.kitchenwalls, this.player);
 
 
+        this.physics.add.overlap(this.player, this.placeplant, this.plantBag, null, this);
+        this.physics.add.overlap(this.player, this.placeplant2, this.plantBag, null, this);
+        this.physics.add.overlap(this.player, this.placeplant3, this.plantBag, null, this);
 
 
-    // Add time event / movement here
-
-    // get the tileIndex number in json, +1
-    //mapLayer.setTileIndexCallback(11, this.room1, this);
-
-    // Add custom properties in Tiled called "mouintain" as bool
-
-    // What will collider witg what layers
-    //this.physics.add.collider(mapLayer, this.player);
-
-    // create the arrow keys
-    //this.cursors = this.input.keyboard.createCursorKeys();
-
-    // camera follow player
-    //this.cameras.main.startFollow(this.player);
-        // set bounds so the camera won't go outside the game world
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
         // make the camera follow the player
         this.cameras.main.startFollow(this.player);
     
         // set background color, so the sky is not black
         this.cameras.main.setBackgroundColor("#ccccff");
+
+  
+
   } /////////////////// end of create //////////////////////////////
 
   update() {
+
 
     if (this.cursors.left.isDown) {
       this.player.body.setVelocityX(-200);
@@ -174,7 +204,24 @@ class house extends Phaser.Scene {
       this.player.body.setVelocity(0, 0);
       //console.log('idle');
     }
+
     
   } /////////////////// end of update //////////////////////////////
+
+  plantBag(player,placeplant){
+    console.log("place plant overlap player")
+    // lose a life
+    //shake the camera
+    this.placeSnd.play()
+    window.bag--
+    placeplant.disableBody(true,true);
+    updateInventory.call(this)
+    if (window.bag >= 1 ){
+       
+      this.scene.stop('house');
+      this.scene.stop("showInventory")
+      this.scene.start("youwin") 
+    }   
+  }
 
 } //////////// end of class world ////////////////////////

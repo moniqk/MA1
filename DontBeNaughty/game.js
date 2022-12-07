@@ -6,7 +6,7 @@
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
 
@@ -16,10 +16,15 @@
     },
     backgroundColor: '#000000',
     pixelArt: true,
-    scene: [main, bank, world, taman, house]
+    scene: [main, storyOne, storyTwo, levelOne, bank, levelTwo, world, levelThree , taman, levelFour, house, showInventory, gameover, youwin]
 
  
 };
+
+
+window.bag = 0
+window.heart = 3
+
 
 
 var game = new Phaser.Game(config);

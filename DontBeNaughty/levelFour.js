@@ -1,8 +1,8 @@
-class main extends Phaser.Scene {
+class levelFour extends Phaser.Scene {
 
     constructor() {
         super({
-            key: 'main'
+            key: 'levelFour'
         });
     
         // Put global variable here
@@ -15,7 +15,8 @@ class main extends Phaser.Scene {
         // Preload all the assets here
 
         // Preload any images here
-        this.load.image("homepage", 'assets/homepage.jpg');
+        this.load.image("Level4", 'assets/Level4.png');
+        this.load.image("housess", 'assets/housess.png');
 
         // Preload any sound and music here
         // this.load.audio('ping', 'assets/ping.mp3');
@@ -26,15 +27,12 @@ class main extends Phaser.Scene {
 
     create() {
 
-        console.log('*** main scene');
+        console.log('*** 4thLvl scene');
 
         // Add any sound and music here
         // ( 0 = mute to 1 is loudest )
         //this.music = this.sound.add('bgMusic').setVolume(0.3) // 10% volume
 
-        //this.music.play()
-        this.bgMusic = this.sound.add ("bgMusic", {loop: true}).setVolume(0.2)
-        this.bgMusic.play()
         //window.music = this.music
 
 
@@ -42,21 +40,29 @@ class main extends Phaser.Scene {
         //this.add.image(0, 0, 'main').setOrigin(0, 0);
         
         let spaceDown = this.input.keyboard.addKey('SPACE')
-        this.add.image(0, 0, "homepage").setOrigin(0, 0);
-        console.log("this is homepage")
-        
-        
-        spaceDown.on("down",function () {
-              console.log("Jump to story1 scene");
-              this.bgMusic.play()
-      
-              this.scene.start(
-                "storyOne"
-              );
-            },
-            this
-          );
-        
+        this.add.image(0, 0, "housess").setOrigin(0, 0).setScale(0.36);
+        this.add.image(0, 0, "Level4").setOrigin(0, 0)
+        console.log("this is lvl4")
+
+        spaceDown.on('down', function () {
+            console.log('Jump to home scene');
+
+            this.scene.start('house',
+                // Optional parameters
+                {
+
+                }
+            );
+        }, this);
+
+
+
+        // Add any text in the main page
+        // this.add.text(100, 300, 'Press spacebar to continue', {
+        //     font: '30px Courier',
+        //     fill: '#FFFFFF'
+        // });
+
 
         // Create all the game animations here
 
